@@ -3,16 +3,12 @@ const Books = require("./routes/bookRoutes");
 const Reviews = require("./routes/reviewRoutes")
 const cors = require('cors');
 
-const corsOptions = {
-  origin: 'http://localhost:5173', // Allow only requests from localhost:5173
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-};
+
 
 
 const app = express();
 
-app.use(cors(corsOptions));
+app.use(cors());
 require("dotenv").config();
 
  const db = require('./database/db.js');
