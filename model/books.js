@@ -16,6 +16,11 @@ const book = new mongoose.Schema(
             require: true,
         },
 
+        price: {
+            type: Number,
+            require: true,
+        },
+
         genre: {
             type: String,
             require: true,
@@ -28,10 +33,11 @@ const book = new mongoose.Schema(
         category: {
             type: String,
             enum: ['Fiction', 'Non-fiction'],
-            required: true
+            required: true,
         },
         recommended: {
-            type: Boolean, default: false
+            type: Boolean,
+             default: false,
         }
     },
     { timestamps: true }

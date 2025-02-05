@@ -1,13 +1,27 @@
 const router = require("express").Router();
+const User = require("../model/user")
 const Book = require("../model/books")
+const {authenthicateToken} = require("./userAuth")
 
-router.post("/addbook", async (req, res) => {
+router.post("/addbook", authenthicateToken, async (req, res) => {
     
     try {
+      const {id} = req.headers;
+      const user = await User.findById(id);
+      
+
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+    }
+
+      if(user.role !== 'admin'){
+        return res.status(400).json({ massage: "You are not having access to perform admin work" })
+      }
         const book = new Book({
             url: req.body.url,
             title: req.body.title,
             author: req.body.author,
+            price: req.body.price,
             genre: req.body.genre,
             desc: req.body.desc,
             category:req.body.category,
@@ -15,7 +29,8 @@ router.post("/addbook", async (req, res) => {
         await book.save();
         res.status(200).json({ massage: "Book Added successfully" })
     } catch (error) {
-        res.status(500).json({ massage: "Internal server error" })
+      console.log(error)
+        res.status(500).json({ massage: "Internal server error",error })
     }
 })
 
@@ -25,7 +40,7 @@ router.post("/addbook", async (req, res) => {
 
 router.get("/getbook/:id", async (req, res) => {
     let book;
-    const id = req.params.id;
+    const {id }= req.params;
     try {
         book = await Book.findById(id);
         res.status(200).json({ book })
@@ -34,15 +49,16 @@ router.get("/getbook/:id", async (req, res) => {
     }
 })
 
-router.put("/updatebook/:id", async (req, res) => {
-    const id = req.params.id;
-    const { url, title, author, genre, desc, category } = req.body;
-    let book;
+router.put("/updatebook", async (req, res) => {
+  const {bookid }= req.headers;
+    const { url, title, author, price, genre, desc, category } = req.body;
+ 
     try {
-      updatedBook = await Book.findByIdAndUpdate(id, {
+      updatedBook = await Book.findByIdAndUpdate(bookid, {
             url,
             title,
             author,
+            price,
             genre,
             desc,
             category,
@@ -68,7 +84,7 @@ router.get('/books', async (req, res) => {
   const page = parseInt(req.query.page) || 1; 
 
   try {
-    const books = await Book.find({})
+    const books = await Book.find({}).sort({createdAt: -1})
       .skip((page - 1) * limit) 
       .limit(limit); 
 
@@ -108,10 +124,10 @@ router.get("/random-books", async (req, res) => {
     }
   });
 
-router.delete("/deletebook/:id", async (req, res) => {
-    const id  = req.params.id;
+router.delete("/deletebook", async (req, res) => {
+  const {bookid }= req.headers;
     try {
-        await Book.findByIdAndDelete(id);
+        await Book.findByIdAndDelete(bookid);
         return res.status(200).json({ massage: "Book Delete successfully" })
     } catch (error) {
         return res.status(500).json({ massage: "Internal server error" })
