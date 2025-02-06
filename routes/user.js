@@ -49,9 +49,9 @@ router.post('/sign-up', async (req, res) => {
 
 router.post('/sign-in', async (req, res) => {
     try {
-        const { username, password } = req.body;
+        const { email, password } = req.body;
 
-        const existingUser = await User.findOne({ username })
+        const existingUser = await User.findOne({ email })
         if(!existingUser) {
             res.status(400).json({ massage: "Invalid Password or Email" })
 
@@ -61,7 +61,7 @@ router.post('/sign-in', async (req, res) => {
 
         if(data){
             const authClaims = [
-                {name: existingUser.username},
+                {name: existingUser.email},
                 {role: existingUser.role},
             ]
             const token = jwt.sign({authClaims}, "bookrecommend123",{
