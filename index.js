@@ -13,6 +13,7 @@ const cors = require('cors');
 const app = express();
 
 app.use(cors());
+
 require("dotenv").config();
 
  const db = require('./database/db.js');
