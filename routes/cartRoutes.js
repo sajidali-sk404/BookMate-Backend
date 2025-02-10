@@ -24,13 +24,7 @@ router.put('/addbook-to-cart', authenthicateToken, async (req, res) => {
 router.put('/removebook-from-cart', authenthicateToken, async (req, res) => {
     try {
         const { bookid, id } = req.headers;
-        const userData = await User.findById(id);
-        const isBookinCart = userData.cart.includes(bookid);
-        if (isBookinCart) {
             await User.findByIdAndUpdate(id, { $pull: { cart: bookid } })
-        }
-        
-
         return res.status(200).json({ massage: "Book Remove From Cart" })
     } catch (error) {
         console.log(error)
