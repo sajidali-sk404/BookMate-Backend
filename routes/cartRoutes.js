@@ -21,12 +21,12 @@ router.put('/addbook-to-cart', authenthicateToken, async (req, res) => {
     }
 })
 
-router.put('/removebook-from-cart/bookid', authenthicateToken, async (req, res) => {
+router.put('/removebook-from-cart/:bookid', authenthicateToken, async (req, res) => {
     try {
         const { bookid } = req.params;
         const { id } = req.headers;
             await User.findByIdAndUpdate(id, { $pull: { cart: bookid } })
-        return res.status(200).json({ massage: "Book Remove From Cart" })
+        return res.json({ status:"Success", massage: "Book Remove From Cart" })
     } catch (error) {
         console.log(error)
         res.status(500).json({ massage: "Internal server error" })
