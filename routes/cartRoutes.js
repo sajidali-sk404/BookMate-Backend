@@ -21,7 +21,7 @@ router.put('/addbook-to-cart', authenthicateToken, async (req, res) => {
     }
 })
 
-router.put('/removebook-from-cart', authenthicateToken, async (req, res) => {
+router.put('/removebook-from-cart/bookid', authenthicateToken, async (req, res) => {
     try {
         const { bookid } = req.params;
         const { id } = req.headers;
