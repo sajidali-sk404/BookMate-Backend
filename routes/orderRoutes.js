@@ -37,7 +37,7 @@ router.get('/getorder-history', authenthicateToken, async (req, res) => {
             path: 'order',
             populate: {
                 path: 'book',  // Ensure that you populate the 'book' field in 'order'
-                model: 'Book',
+                model: 'books',
                 select: 'title desc price' // Only select necessary fields to reduce data load
             }
         });
