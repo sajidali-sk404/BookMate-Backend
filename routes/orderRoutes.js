@@ -14,12 +14,13 @@ router.post('/place-order', authenthicateToken, async (req, res) => {
             const newOrder = new Order({ user: id, book: orderData._id })
             const orderDataFromDb = await newOrder.save();
 
-            await User.findByIdAndUpdate(id ,{$push: {order: orderDataFromDb._id}});
+            await User.findByIdAndUpdate(id, { $push: { order: orderDataFromDb._id } });
 
-                // clearing Cart
-            await User.findByIdAndUpdate(id ,{$pull: {cart: orderData._id}});
+            // clearing Cart
+            await User.findByIdAndUpdate(id, { $pull: { cart: orderData._id } });
         }
-        return res.json({status: "Succes",
+        return res.json({
+            status: "Succes",
             massage: "Order place Successfully",
         })
 
@@ -31,39 +32,47 @@ router.post('/place-order', authenthicateToken, async (req, res) => {
 
 router.get('/getorder-history', authenthicateToken, async (req, res) => {
     try {
-        const { id } = req.header;
-        const userData = await User.findById(id).populate({
-            path: "order",
-        }).populate({
-            path: "books",
+        const { id } = req.headers; // Corrected to req.headers
+        const userData = await User.findById(id)
+            .populate({
+                path: "order", // Ensure "order" is a reference in the User schema
+            })
+            .populate({
+                path: "books", // Ensure "books" is a reference in the User schema
+            });
+
+        // Check if user data exists
+        if (!userData) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const ordersData = userData.order.reverse(); // Reverse the order history for latest first
+
+        return res.json({
+            status: "Success",
+            data: ordersData,
         });
 
-        const ordersData = userData.order.reverse();
-
-        
-        return res.json({
-            status: "Succes",
-            data:ordersData,
-        })
-
     } catch (error) {
-        res.status(500).json({ massage: "Internal server error" })
+        console.log(error); // Log the error for debugging
+        res.status(500).json({ message: "Internal server error" });
     }
-})
+});
+
 
 router.get('/getall-orders', authenthicateToken, async (req, res) => {
     try {
-      
+
         const userData = await Order.find().populate({
             path: "books",
         }).populate({
             path: "user",
-        }).sort({createdAt: -1});
+        }).sort({ createdAt: -1 });
 
-        
+
         return res.json({
             status: "Succes",
-            data:userData,
+            data: userData,
         })
 
     } catch (error) {
@@ -73,14 +82,14 @@ router.get('/getall-orders', authenthicateToken, async (req, res) => {
 
 router.put('/update-status/:id', authenthicateToken, async (req, res) => {
     try {
-      const {id} = req.params;
-      await Order.findByIdAndUpdate(id, {status: req.body.status});
+        const { id } = req.params;
+        await Order.findByIdAndUpdate(id, { status: req.body.status });
 
 
-        
+
         return res.json({
             status: "Succes",
-             massage: "Status Update successfully",
+            massage: "Status Update successfully",
         })
 
     } catch (error) {
