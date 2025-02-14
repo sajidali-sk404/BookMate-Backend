@@ -38,7 +38,7 @@ router.get('/getorder-history', authenthicateToken, async (req, res) => {
                 path: "order", // Ensure "order" is a reference in the User schema
             })
             .populate({
-                path: "books", // Ensure "books" is a reference in the User schema
+                path: "book", // Ensure "books" is a reference in the User schema
             });
 
         // Check if user data exists
@@ -64,7 +64,7 @@ router.get('/getall-orders', authenthicateToken, async (req, res) => {
     try {
 
         const userData = await Order.find().populate({
-            path: "books",
+            path: "book",
         }).populate({
             path: "user",
         }).sort({ createdAt: -1 });

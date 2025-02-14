@@ -50,12 +50,6 @@ const user = new mongoose.Schema(
             ref:"order",
         },
         ],
-
-        books:[{
-            type: mongoose.Types.ObjectId,
-            ref:"books",
-        },
-    ],
         
 
     },
