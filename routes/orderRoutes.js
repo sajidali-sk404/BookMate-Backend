@@ -32,26 +32,23 @@ router.post('/place-order', authenthicateToken, async (req, res) => {
 
 router.get('/getorder-history', authenthicateToken, async (req, res) => {
     try {
-        const { id } = req.headers; // Corrected to req.headers
-        const userData = await User.findById(id)
-            .populate({
-                path: "order", // Ensure "order" is a reference in the User schema
-            })
-            .populate({
-                path: "book", // Ensure "books" is a reference in the User schema
-            });
+        const { id } = req.headers;  // Use req.headers to get the ID
+        const userData = await User.findById(id).populate({
+            path: 'order',
+            populate: {
+                path: 'book',  // Ensure that you populate the 'book' field in 'order'
+                model: 'Book',
+                select: 'title desc price' // Only select necessary fields to reduce data load
+            }
+        });
 
-        // Check if user data exists
-        if (!userData) {
-            return res.status(404).json({ message: "User not found" });
-        }
-
-        const ordersData = userData.order.reverse(); // Reverse the order history for latest first
+        const ordersData = userData.order.reverse();
 
         return res.json({
             status: "Success",
-            data: ordersData,
+            data: ordersData
         });
+
 
     } catch (error) {
         console.log(error); // Log the error for debugging
