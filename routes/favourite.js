@@ -15,7 +15,6 @@ router.put('/addbook-to-favourite', authenthicateToken, async (req, res) => {
         await User.findByIdAndUpdate(id, { $push: { favourites: bookid } })
         return res.status(200).json({ massage: "Book Added To Favourites" })
     } catch (error) {
-        console.log(error)
         res.status(500).json({ massage: "Internal server error" })
     }
 })
