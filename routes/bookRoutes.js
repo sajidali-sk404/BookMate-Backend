@@ -35,9 +35,6 @@ router.post("/addbook", authenthicateToken, async (req, res) => {
 })
 
 
-
-
-
 router.get("/getbook/:id", async (req, res) => {
     let book;
     const {id }= req.params;
@@ -49,8 +46,8 @@ router.get("/getbook/:id", async (req, res) => {
     }
 })
 
-router.put("/updatebook", async (req, res) => {
-  const {bookid }= req.headers;
+router.put("/updatebook/:id",authenthicateToken, async (req, res) => {
+  const {bookid }= req.params;
     const { url, title, author, price, genre, desc, category } = req.body;
  
     try {
@@ -124,8 +121,8 @@ router.get("/random-books", async (req, res) => {
     }
   });
 
-router.delete("/deletebook", async (req, res) => {
-  const {bookid }= req.headers;
+  router.delete("/deletebook", authenthicateToken, async (req, res) => {
+    const { bookid } = req.headers;
     try {
         await Book.findByIdAndDelete(bookid);
         return res.status(200).json({ massage: "Book Delete successfully" })
