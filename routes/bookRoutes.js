@@ -46,8 +46,8 @@ router.get("/getbook/:id", async (req, res) => {
     }
 })
 
-router.put("/updatebook/:id",authenthicateToken, async (req, res) => {
-  const {bookid }= req.params;
+router.put("/updatebook",authenthicateToken, async (req, res) => {
+  const {bookid }= req.headers;
     const { url, title, author, price, genre, desc, category } = req.body;
  
     try {
