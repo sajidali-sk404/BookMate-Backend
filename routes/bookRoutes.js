@@ -35,7 +35,7 @@ router.post("/addbook", authenthicateToken, async (req, res) => {
 })
 
 
-router.get("/getbook/:id", async (req, res) => {
+router.get("/getbook/:id",authenthicateToken, async (req, res) => {
     let book;
     const {id }= req.params;
     try {
