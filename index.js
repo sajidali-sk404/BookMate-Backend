@@ -14,6 +14,7 @@ const app = express();
 
 app.use(cors({
   origin: 'https://book-mate-fronend.vercel.app',
+  origin: 'http://localhost:5173',
     credentials: true
 }));
 
