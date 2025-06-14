@@ -12,9 +12,9 @@ const cors = require('cors');
 
 const app = express();
 
-  res.setHeader("Access-Control-Allow-Origin", "https://book-mate-fronend.vercel.app");
-  res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  header("Access-Control-Allow-Origin", "https://book-mate-fronend.vercel.app");
+  header("Access-Control-Allow-Methods", "GET,OPTIONS");
+  header("Access-Control-Allow-Headers", "Content-Type");
 
 app.use(cors({
   origin: 'https://book-mate-fronend.vercel.app',
