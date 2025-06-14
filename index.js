@@ -12,6 +12,10 @@ const cors = require('cors');
 
 const app = express();
 
+  res.setHeader("Access-Control-Allow-Origin", "https://book-mate-fronend.vercel.app");
+  res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
 app.use(cors({
   origin: 'https://book-mate-fronend.vercel.app',
   origin: 'http://localhost:5173',
@@ -22,7 +26,7 @@ require("dotenv").config();
 
  const db = require('./database/db.js');
 
- 
+           
 
 
  
