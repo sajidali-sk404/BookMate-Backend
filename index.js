@@ -12,21 +12,13 @@ const cors = require('cors');
 
 const app = express();
 
-  header("Access-Control-Allow-Origin", "https://book-mate-fronend.vercel.app");
-  header("Access-Control-Allow-Methods", "GET,OPTIONS");
-  header("Access-Control-Allow-Headers", "Content-Type");
-
-app.use(cors({
-  origin: 'https://book-mate-fronend.vercel.app',
-  origin: 'http://localhost:5173',
-    credentials: true
-}));
+app.use(cors());
 
 require("dotenv").config();
 
  const db = require('./database/db.js');
 
-           
+ 
 
 
  
@@ -43,8 +35,6 @@ app.use("/api", Favourite)
 app.use("/api", Cart)
 
 app.use("/api", Order)
-
-app.options('*', cors());
 
 app.listen(process.env.PORT, () => {
     console.log(`Server is Running successfully on PORT ${process.env.PORT}`);
