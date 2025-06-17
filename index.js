@@ -12,7 +12,10 @@ const cors = require('cors');
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: 'https://book-mate-fronend.vercel.app',
+  credentials: true
+}));
 
 require("dotenv").config();
 
@@ -35,6 +38,8 @@ app.use("/api", Favourite)
 app.use("/api", Cart)
 
 app.use("/api", Order)
+
+app.options("*", cors());
 
 app.listen(process.env.PORT, () => {
     console.log(`Server is Running successfully on PORT ${process.env.PORT}`);
