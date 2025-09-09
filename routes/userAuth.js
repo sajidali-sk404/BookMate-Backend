@@ -1,19 +1,22 @@
-const jwt = require('jsonwebtoken')
+const jwt = require("jsonwebtoken");
 
-const authenthicateToken = (req, res , next) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(" ")[1];
+const authenthicateToken = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
 
-    if(token === null) {
-        return res.status(401).json({massage: "Authentication Token required"})
+  if (!token) {
+    return res.status(401).json({ message: "Authentication token required" });
+  }
+
+  jwt.verify(token, "bookrecommend123", (err, user) => {
+    if (err) {
+      return res
+        .status(403)
+        .json({ message: "Token is invalid or expired. Please sign in again." });
     }
-    jwt.verify(token, "bookrecommend123", (err, user)=>{
-        if(err){
-           return res.status(403).json({massage: "Token is Expired please SignIn again"})
-        }
-        req.user = user;
-        next();
-    })
-}
+    req.user = user; // decoded payload (id, email, etc.)
+    next();
+  });
+};
 
-module.exports = {authenthicateToken}
+module.exports = { authenthicateToken };
