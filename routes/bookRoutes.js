@@ -15,7 +15,7 @@ router.post("/addbook", authenthicateToken, async (req, res) => {
     }
 
       if(user.role !== 'admin'){
-        return res.status(400).json({ massage: "You are not having access to perform admin work" })
+        return res.status(400).json({message : "You are not having access to perform admin work" })
       }
         const book = new Book({
             url: req.body.url,
@@ -27,10 +27,10 @@ router.post("/addbook", authenthicateToken, async (req, res) => {
             category:req.body.category,
         });
         await book.save();
-        res.status(200).json({ massage: "Book Added successfully" })
+        res.status(200).json({ message: "Book Added successfully" })
     } catch (error) {
       console.log(error)
-        res.status(500).json({ massage: "Internal server error",error })
+        res.status(500).json({ message: "Internal server error",error })
     }
 })
 
@@ -42,7 +42,7 @@ router.get("/getbook/:id", async (req, res) => {
         book = await Book.findById(id);
         res.status(200).json({ book })
     } catch (error) {
-        res.status(500).json({ massage: "Internal server error" })
+        res.status(500).json({ message: "Internal server error" })
     }
 })
 
@@ -67,9 +67,9 @@ router.put("/updatebook",authenthicateToken, async (req, res) => {
         return res.status(404).json({ message: 'Book not found' });
       }
 
-        return res.status(200).json({massage: "Data update Successfully",book: updatedBook})
+        return res.status(200).json({message: "Data update Successfully",book: updatedBook})
     } catch (error) {
-        return res.status(500).json({ massage: "error updating book", error: error.message })
+        return res.status(500).json({ message: "error updating book", error: error.message })
     }
 })
 
@@ -125,9 +125,9 @@ router.get("/random-books", async (req, res) => {
     const { bookid } = req.headers;
     try {
         await Book.findByIdAndDelete(bookid);
-        return res.status(200).json({ massage: "Book Delete successfully" })
+        return res.status(200).json({ message: "Book Delete successfully" })
     } catch (error) {
-        return res.status(500).json({ massage: "Internal server error" })
+        return res.status(500).json({ message: "Internal server error" })
     }
 })
 

@@ -5,12 +5,12 @@ const order = new mongoose.Schema(
     {
         user:{
            type: mongoose.Types.ObjectId,
-           ref:"user",
+           ref:"User",
         },
 
         book:{
            type: mongoose.Types.ObjectId,
-           ref:"books",
+           ref:"Book",
         },
 
         status:{
@@ -22,4 +22,4 @@ const order = new mongoose.Schema(
     { timestamps: true }
 )
 
-module.exports = mongoose.model("order", order)
+module.exports = mongoose.model("Order", order)

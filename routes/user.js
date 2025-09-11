@@ -91,41 +91,24 @@ router.post("/sign-up", async (req, res) => {
   }
 });
 
-// VERIFY EMAIL (POST)
+
 // POST /api/verify-email
 router.post("/verify-email", async (req, res) => {
   try {
-    const { email: rawEmail, code: rawCode } = req.body || {};
-    const email = typeof rawEmail === "string" ? rawEmail.trim().toLowerCase() : rawEmail;
-    const code = typeof rawCode === "string" ? rawCode.trim() : String(rawCode || "");
-
-    console.log("VERIFY EMAIL request (normalized):", { email, code });
-
-    if (!email || !code) {
-      return res.status(400).json({ message: "Email and code are required" });
-    }
+    const { email, code } = req.body;
 
     const user = await User.findOne({ email });
-    console.log("Found user:", !!user, "user._id:", user?._id);
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (!user) return res.status(400).json({ message: "User not found" });
-
-    // log stored types / values
-    console.log("Stored verificationCode (raw):", user.verificationCode, "type:", typeof user.verificationCode);
-    console.log("Stored codeExpiry (raw):", user.codeExpiry, "type:", typeof user.codeExpiry, "now:", Date.now());
-
-    const storedCode = user.verificationCode != null ? String(user.verificationCode).trim() : null;
-
-    if (!storedCode) {
-      return res.status(400).json({ message: "No verification code found. Please request a new code." });
+    if (user.isVerified) {
+      return res.status(200).json({ message: "Email already verified." });
     }
 
-    if (storedCode !== code) {
-      console.log("CODE MISMATCH -> sent:", code, "stored:", storedCode);
+    if (!user.verificationCode || user.verificationCode !== code) {
       return res.status(400).json({ message: "Invalid code" });
     }
 
-    if (user.codeExpiry && Date.now() > Number(user.codeExpiry)) {
+    if (user.codeExpiry < Date.now()) {
       return res.status(400).json({ message: "Code expired" });
     }
 
@@ -142,6 +125,7 @@ router.post("/verify-email", async (req, res) => {
 });
 
 
+
 router.post("/resend-code", async (req, res) => {
   try {
     const { email } = req.body;
@@ -152,7 +136,7 @@ router.post("/resend-code", async (req, res) => {
 
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     user.verificationCode = code;
-    user.codeExpiry = Date.now() + 10*60*1000;
+    user.codeExpiry = Date.now() + 10 * 60 * 1000;
     await user.save();
 
     await sendVerificationEmail(email, code);
@@ -168,90 +152,97 @@ router.post("/resend-code", async (req, res) => {
 router.post("/sign-in", async (req, res) => {
   try {
     const { email, password } = req.body;
-    const existingUser = await User.findOne({ email });
 
-    if (!existingUser) {
-      return res.status(400).json({ message: "Invalid email or password" });
+    // 1. Check if user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "Invalid credentials" });
     }
-
-    if (!existingUser.isVerified) {
-      return res.status(403).json({ message: "Please verify your email before logging in" });
-    }
-
-    const isMatch = await bcrypt.compare(password, existingUser.password);
+    // 2. Compare password with hashed password
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid email or password" });
+      return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    const authClaims = {
-      name: existingUser.email,
-      role: existingUser.role,
-      id: existingUser._id,
-    };
+    // 3. Check email verification
+    if (!user.isVerified) {
+      return res
+        .status(403)
+        .json({ message: "Please verify your email before login." });
+    }
 
-    const token = jwt.sign({ authClaims }, process.env.JWT_SECRET || "bookrecommend123", {
-      expiresIn: "30d",
-    });
+    // 4. Create JWT
+    const token = jwt.sign(
+      { id: user._id, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
 
-    return res.status(200).json({
-      id: existingUser._id,
-      role: existingUser.role,
+    // 5. Send response
+    return res.json({
+      message: "Login successful",
       token,
+      role: user.role?.trim(),
+      id: user._id,
     });
-  } catch (error) {
-    console.error("signin error:", error);
+  } catch (err) {
+    console.error("login error:", err);
     return res.status(500).json({ message: "Internal server error" });
   }
 });
 
+
 // get-user-information
 router.get("/get-user-information", authenthicateToken, async (req, res) => {
   try {
-    const userId = req.user?.id;
-    if (!userId) {
-      return res.status(401).json({ message: "Unauthorized: user id missing in token" });
-    }
+    const { id } = req.headers; // ✅ use "id" (same as you store in localStorage)
 
-    // select explicit fields to avoid leaking private info
-    const user = await User.findById(userId)
+    const user = await User.findById(id)
       .select("-password -verificationCode -codeExpiry -__v")
       .lean();
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-    if (!user) return res.status(404).json({ message: "User not found" });
+    return res.status(200).json(user);
 
-    return res.status(200).json({ user });
   } catch (error) {
     console.error("get-user-information error:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 });
 
+
 // update-address
 router.put("/update-address", authenthicateToken, async (req, res) => {
   try {
-    const userId = req.user?.id;
-    if (!userId) {
-      return res.status(401).json({ message: "Unauthorized: user id missing in token" });
+    const { id } = req.headers; // ✅ keep it consistent
+    if (!id) {
+      return res.status(401).json({ message: "Unauthorized: user id missing in headers" });
     }
-
+   
     const { address } = req.body;
     if (typeof address !== "string" || address.trim().length === 0) {
       return res.status(400).json({ message: "Invalid address" });
     }
 
     const updated = await User.findByIdAndUpdate(
-      userId,
+      id,
       { address: address.trim() },
-      { new: true, runValidators: true, context: "query" } // return updated doc
+      { new: true, runValidators: true, context: "query" }
     ).select("-password -verificationCode -codeExpiry -__v");
 
     if (!updated) return res.status(404).json({ message: "User not found" });
 
-    return res.status(200).json({ message: "Address updated successfully", user: updated });
+    return res.status(200).json({
+      message: "Address updated successfully",
+      user: updated,
+    });
   } catch (error) {
     console.error("update-address error:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 });
+
 
 module.exports = router;

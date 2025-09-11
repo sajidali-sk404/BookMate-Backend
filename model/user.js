@@ -36,6 +36,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ["user", "admin"],
       default: "user",
+      set: v => v.trim()
     },
 
     favourites: [

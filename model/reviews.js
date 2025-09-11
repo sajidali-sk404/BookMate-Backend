@@ -3,12 +3,12 @@ const mongoose = require("mongoose")
 const review = new mongoose.Schema({
     bookId: {
         type: mongoose.Types.ObjectId,
-        ref: "books",
+        ref: "Book",
     },
 
     reviewerName: {
         type: String,
-        require: true,
+        required: true,
     },
 
 
