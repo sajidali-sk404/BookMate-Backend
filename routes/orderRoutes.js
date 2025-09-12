@@ -11,10 +11,10 @@ router.post('/place-order', authenthicateToken, async (req, res) => {
         const { order } = req.body;
 
         for (const orderData of order) {
-            const newOrder = new Order({ user: id, book: orderData._id })
+            const newOrder = new Order({ user: id, books: orderData._id })
             const orderDataFromDb = await newOrder.save();
 
-            await User.findByIdAndUpdate(id, { $push: { order: orderDataFromDb._id } });
+            await User.findByIdAndUpdate(id, { $push: { orders: orderDataFromDb._id } });
 
             // clearing Cart
             await User.findByIdAndUpdate(id, { $pull: { cart: orderData._id } });
@@ -47,7 +47,7 @@ router.get('/getorder-history', authenthicateToken, async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const ordersData = [...userData.orders].reverse();
+    const ordersData = (userData.orders || []).reverse();
     console.log(ordersData);
 
     return res.json({
@@ -64,25 +64,23 @@ router.get('/getorder-history', authenthicateToken, async (req, res) => {
 
 
 
-router.get('/getall-orders', authenthicateToken, async (req, res) => {
-    try {
+router.get("/getall-orders", authenthicateToken, async (req, res) => {
+  try {
+    const userData = await Order.find()
+      .populate({ path: "books", select: "title desc price" }) // ✅ books matches schema
+      .populate({ path: "user", select: "username email" })    // ✅ user matches schema
+      .sort({ createdAt: -1 });
 
-        const userData = await Order.find().populate({
-            path: "books",
-        }).populate({
-            path: "user",
-        }).sort({ createdAt: -1 });
+    return res.json({
+      status: "Success",
+      data: userData,
+    });
+  } catch (error) {
+    console.error("getall-orders error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
-
-        return res.json({
-            status: "Succes",
-            data: userData,
-        })
-
-    } catch (error) {
-        res.status(500).json({ message : "Internal server error" })
-    }
-})
 
 router.put('/update-status/:id', authenthicateToken, async (req, res) => {
     try {
