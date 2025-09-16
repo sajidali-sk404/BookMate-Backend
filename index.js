@@ -12,8 +12,8 @@ const cors = require('cors');
 
 const app = express();
 const allowedOrigins = [
-  "http://localhost:5173",
-  "https://book-mate-fronend.vercel.app"
+  "https://book-mate-fronend.vercel.app",
+  "http://localhost:5173"
 ];
 
 app.use(cors({
