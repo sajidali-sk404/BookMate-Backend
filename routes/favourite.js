@@ -24,7 +24,6 @@ router.put('/removebook-from-favourite', authenthicateToken, async (req, res) =>
         const { bookid, id } = req.headers;
         const userData = await User.findById(id);
         const isBookFavourite = userData.favourites.includes(bookid);
-        console.log(isBookFavourite)
         if (isBookFavourite) {
             await User.findByIdAndUpdate(id, { $pull: { favourites: bookid } })
         }
@@ -32,7 +31,6 @@ router.put('/removebook-from-favourite', authenthicateToken, async (req, res) =>
 
         return res.status(200).json({ message: "Book Remove From Favourites" })
     } catch (error) {
-        console.log(error)
         res.status(500).json({ message: "Internal server error" })
     }
 })
@@ -47,7 +45,6 @@ router.get('/getfavourite-books', authenthicateToken, async (req, res) => {
         
         
     } catch (error) {
-        console.log(error)
         res.status(500).json({ message: "Internal server error" })
     }
 })

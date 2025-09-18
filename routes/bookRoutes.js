@@ -29,7 +29,6 @@ router.post("/addbook", authenthicateToken, async (req, res) => {
         await book.save();
         res.status(200).json({ message: "Book Added successfully" })
     } catch (error) {
-      console.log(error)
         res.status(500).json({ message: "Internal server error",error })
     }
 })

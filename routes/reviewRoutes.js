@@ -67,7 +67,7 @@ router.get("/reviews/:id", async (req, res) => {
   const reviewId = req.params.id;
 
   try {
-    const review = await Review.findById(reviewId).populate("user", "name");
+    const review = await Review.findById(reviewId).populate("user", "username");
     if (!review) {
       return res.status(404).json({ message: "Review not found" });
     }
