@@ -46,7 +46,7 @@ To get started with the BookMate-Backend, follow these steps:
 
 ## Usage
 
-Once the server is running, you can access the APIs at `https://bookmate-backend-production-8e5e.up.railway.app/api`.
+Once the server is running, you can access the APIs at `https://vercel.com/sajid-alis-projects-0b343f64/book-mate-backend/E7t2ZTHbkvPKXgDdR24Vyd2yBX78`.
 
 ### Example Endpoints
 

@@ -37,7 +37,6 @@ router.post("/books/:id/reviews", async (req, res) => {
     await review.save();
     const populatedReview = await review.populate("user", "username email");
 res.status(201).json({ message: "Review added successfully", review: populatedReview });
-    res.status(201).json({ message: "Review added successfully", review });
   } catch (error) {
     console.error("Add review error:", error);
     res.status(500).json({ message: "Internal server error" });

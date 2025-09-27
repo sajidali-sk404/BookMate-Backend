@@ -12,8 +12,8 @@ const cors = require('cors');
 
 const app = express();
 const allowedOrigins = [
-  "https://book-mate-fronend.vercel.app",
-  "http://localhost:5173"
+  process.env.FRONTEND_URL,
+  process.env.FRONTEND_LOCAL_URL
 ];
 
 app.use(cors({
