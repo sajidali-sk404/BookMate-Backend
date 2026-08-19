@@ -43,4 +43,8 @@ const book = new mongoose.Schema(
     { timestamps: true }
 )
 
+book.index({ genre: 1 });
+book.index({ category: 1 });
+book.index({ createdAt: -1 });
+
 module.exports = mongoose.model("Book", book)

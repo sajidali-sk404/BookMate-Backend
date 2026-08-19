@@ -156,4 +156,59 @@ router.get('/searchBooks', async (req, res) => {
 });
 
 
+// Get similar books based on genre, author, or category
+router.get("/books/similar/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const currentBook = await Book.findById(id);
+    if (!currentBook) {
+      return res.status(404).json({ message: "Book not found" });
+    }
+
+    // 1. Try to find books with matching genre OR author (excluding current book)
+    let similarBooks = [];
+    if (currentBook.genre || currentBook.author) {
+      const conditions = [];
+      if (currentBook.genre) {
+        conditions.push({ genre: { $regex: new RegExp(`^${currentBook.genre}$`, "i") } });
+      }
+      if (currentBook.author) {
+        conditions.push({ author: { $regex: new RegExp(`^${currentBook.author}$`, "i") } });
+      }
+      similarBooks = await Book.find({
+        _id: { $ne: id },
+        $or: conditions,
+      }).limit(4);
+    }
+
+    // 2. If fewer than 4 books, supplement with books from the same category
+    if (similarBooks.length < 4) {
+      const existingIds = [id, ...similarBooks.map((b) => b._id)];
+      const categoryBooks = await Book.find({
+        _id: { $nin: existingIds },
+        category: currentBook.category,
+      }).limit(4 - similarBooks.length);
+
+      similarBooks = [...similarBooks, ...categoryBooks];
+    }
+
+    // 3. If still fewer than 4, supplement with recent books
+    if (similarBooks.length < 4) {
+      const existingIds = [id, ...similarBooks.map((b) => b._id)];
+      const recentBooks = await Book.find({
+        _id: { $nin: existingIds },
+      })
+        .sort({ createdAt: -1 })
+        .limit(4 - similarBooks.length);
+
+      similarBooks = [...similarBooks, ...recentBooks];
+    }
+
+    res.status(200).json(similarBooks);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching similar books", error: error.message });
+  }
+});
+
+
 module.exports = router;
